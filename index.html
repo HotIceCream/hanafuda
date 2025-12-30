@@ -203,6 +203,60 @@
             font-weight: 500;
         }
 
+        .number-input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .number-input-wrapper input {
+            width: 60px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+            appearance: textfield;
+            -moz-appearance: textfield;
+        }
+
+        .number-input-wrapper input::-webkit-outer-spin-button,
+        .number-input-wrapper input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .number-btn {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: #f8f9fa;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .number-btn:hover {
+            background: #e9ecef;
+            border-color: #667eea;
+        }
+
+        .number-btn:active {
+            background: #dee2e6;
+            transform: scale(0.95);
+        }
+
+        .number-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
         .koi-koi-input input {
             width: 60px;
             padding: 8px;
@@ -380,6 +434,257 @@
         .hidden {
             display: none;
         }
+
+        /* Mobile adaptations */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 15px;
+                border-radius: 8px;
+            }
+
+            h1 {
+                font-size: 24px;
+                margin-bottom: 15px;
+            }
+
+            .setup-section {
+                padding: 12px;
+            }
+
+            .setup-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+
+            .setup-row label {
+                min-width: auto;
+                font-size: 14px;
+            }
+
+            .setup-row input {
+                min-width: auto;
+                width: 100%;
+                padding: 10px;
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+
+            .scores-section {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .player-score {
+                padding: 12px;
+            }
+
+            .player-score h3 {
+                font-size: 16px;
+                margin-bottom: 8px;
+            }
+
+            .player-score .points {
+                font-size: 28px;
+            }
+
+            .deal-section {
+                padding: 12px;
+            }
+
+            .deal-info {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .deal-number {
+                font-size: 16px;
+            }
+
+            .winner-select {
+                flex-direction: column;
+                align-items: stretch;
+                width: 100%;
+            }
+
+            .winner-select label {
+                margin-bottom: 8px;
+            }
+
+            .winner-buttons {
+                flex-direction: column;
+                width: 100%;
+                gap: 8px;
+            }
+
+            .winner-btn {
+                width: 100%;
+                min-width: auto;
+                padding: 12px;
+                font-size: 16px;
+            }
+
+            .koi-koi-input {
+                flex-direction: column;
+                align-items: stretch;
+                width: 100%;
+            }
+
+            .koi-koi-input label {
+                margin-bottom: 8px;
+            }
+
+            .koi-koi-input input {
+                width: 100%;
+                padding: 10px;
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+
+            .number-input-wrapper {
+                width: 100%;
+            }
+
+            .number-input-wrapper input {
+                flex: 1;
+                width: auto;
+            }
+
+            .number-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+            }
+
+            .yaku-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+                gap: 6px;
+            }
+
+            .yaku-btn {
+                padding: 12px 8px;
+                font-size: 12px;
+                min-height: 60px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .yaku-btn .points {
+                font-size: 10px;
+                margin-top: 4px;
+            }
+
+            .yaku-btn .extra-cards-input {
+                width: 100%;
+                margin-top: 8px;
+            }
+
+            .yaku-btn .extra-cards-input input {
+                width: 100%;
+                padding: 6px;
+                font-size: 14px;
+            }
+
+            .deal-result {
+                padding: 12px;
+                font-size: 14px;
+            }
+
+            .deal-result .points-earned {
+                font-size: 16px;
+            }
+
+            .actions {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .actions .btn {
+                width: 100%;
+                padding: 12px;
+                font-size: 16px;
+            }
+
+            .history-item {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+
+            .history-item-content {
+                width: 100%;
+            }
+
+            .history-item-actions {
+                width: 100%;
+                justify-content: stretch;
+            }
+
+            .btn-edit {
+                flex: 1;
+                padding: 10px;
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 5px;
+            }
+
+            .container {
+                padding: 10px;
+                border-radius: 6px;
+            }
+
+            h1 {
+                font-size: 20px;
+                margin-bottom: 12px;
+            }
+
+            .yaku-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 6px;
+            }
+
+            .yaku-btn {
+                padding: 10px 6px;
+                font-size: 11px;
+                min-height: 55px;
+            }
+
+            .player-score .points {
+                font-size: 24px;
+            }
+
+            .deal-number {
+                font-size: 14px;
+            }
+        }
+
+        /* Touch-friendly improvements */
+        @media (hover: none) and (pointer: coarse) {
+            .yaku-btn:hover {
+                transform: none;
+            }
+
+            .yaku-btn:active {
+                transform: scale(0.98);
+                background: #5568d3;
+            }
+
+            .winner-btn:active {
+                transform: scale(0.98);
+            }
+
+            .btn:active {
+                transform: scale(0.98);
+            }
+        }
     </style>
 </head>
 <body>
@@ -397,11 +702,19 @@
             </div>
             <div class="setup-row">
                 <label>Начальные очки:</label>
-                <input type="number" id="initialPoints" value="30" min="0">
+                <div class="number-input-wrapper">
+                    <button class="number-btn" onclick="decrementNumber('initialPoints', 0)">−</button>
+                    <input type="number" id="initialPoints" value="30" min="0">
+                    <button class="number-btn" onclick="incrementNumber('initialPoints')">+</button>
+                </div>
             </div>
             <div class="setup-row">
                 <label>Количество раундов:</label>
-                <input type="number" id="totalRounds" value="12" min="1">
+                <div class="number-input-wrapper">
+                    <button class="number-btn" onclick="decrementNumber('totalRounds', 1)">−</button>
+                    <input type="number" id="totalRounds" value="12" min="1">
+                    <button class="number-btn" onclick="incrementNumber('totalRounds')">+</button>
+                </div>
             </div>
             <div class="actions">
                 <button class="btn btn-primary" onclick="startGame()">Начать игру</button>
@@ -435,7 +748,11 @@
 
                 <div class="koi-koi-input">
                     <label>Количество "кои-кои":</label>
-                    <input type="number" id="koiKoiCount" value="0" min="0" max="10">
+                    <div class="number-input-wrapper">
+                        <button class="number-btn" onclick="decrementNumber('koiKoiCount', 0, 10)">−</button>
+                        <input type="number" id="koiKoiCount" value="0" min="0" max="10">
+                        <button class="number-btn" onclick="incrementNumber('koiKoiCount', 0, 10)">+</button>
+                    </div>
                 </div>
 
                 <div class="yaku-section">
@@ -464,19 +781,18 @@
     <script>
         // Yaku combinations with their point values
         const YAKU = {
-            'goku': { name: 'Гоку (5 светов)', points: 10 },
-            'shiko': { name: 'Сико (4 света)', points: 8 },
-            'ame-shiko': { name: 'Амэ-сико (4 света с дождем)', points: 7 },
-            'sanko': { name: 'Санко (3 света)', points: 5 },
-            'ino-shika-cho': { name: 'Ино-сика-тё', points: 5 },
+            'goku': { name: 'Гоку (5 карт)', points: 10 },
+            'shiko': { name: 'Шико (4 карты)', points: 8 },
+            'ame-shiko': { name: 'Амэ-шико (3 карты с дождем)', points: 7 },
+            'sanko': { name: 'Санко (3 карты)', points: 5 },
+            'ino-shika-cho': { name: 'Ино-шико-чо', points: 5 },
             'akatan': { name: 'Ака-тан (красные ленты)', points: 5 },
             'aotan': { name: 'Ао-тан (синие ленты)', points: 5 },
             'tan-zaku': { name: 'Тан-дзаку (ленты)', points: 1 },
             'tane': { name: 'Тане (животные)', points: 1 },
             'kasu': { name: 'Касу (простые)', points: 1 },
             'tsukimi': { name: 'Цукими (луна)', points: 5 },
-            'hanami': { name: 'Ханами (сакура)', points: 5 },
-            'tsukimi-hanami': { name: 'Цукими + Ханами', points: 10 }
+            'hanami': { name: 'Ханами (сакура)', points: 5 }
         };
 
         let gameState = {
@@ -625,13 +941,17 @@
                     extraCardsHtml = `
                         <div class="extra-cards-input">
                             <label>Доп. карты:</label>
-                            <input type="number" 
-                                   id="extra-cards-${key}" 
-                                   value="0" 
-                                   min="0" 
-                                   max="20"
-                                   onclick="event.stopPropagation();"
-                                   oninput="updateDealResult();">
+                            <div class="number-input-wrapper" onclick="event.stopPropagation();">
+                                <button class="number-btn" onclick="event.stopPropagation(); decrementNumber('extra-cards-${key}', 0, 20); updateDealResult();">−</button>
+                                <input type="number" 
+                                       id="extra-cards-${key}" 
+                                       value="0" 
+                                       min="0" 
+                                       max="20"
+                                       onclick="event.stopPropagation();"
+                                       oninput="updateDealResult();">
+                                <button class="number-btn" onclick="event.stopPropagation(); incrementNumber('extra-cards-${key}', 0, 20); updateDealResult();">+</button>
+                            </div>
                         </div>
                     `;
                 }
@@ -1024,6 +1344,35 @@
                 localStorage.removeItem('hanafudaGame');
                 location.reload();
             }
+        }
+
+        // Number input increment/decrement functions
+        function incrementNumber(inputId, min = null, max = null) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            
+            let value = parseInt(input.value) || 0;
+            value++;
+            
+            if (min !== null && value < min) value = min;
+            if (max !== null && value > max) value = max;
+            
+            input.value = value;
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+
+        function decrementNumber(inputId, min = null, max = null) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            
+            let value = parseInt(input.value) || 0;
+            value--;
+            
+            if (min !== null && value < min) value = min;
+            if (max !== null && value > max) value = max;
+            
+            input.value = value;
+            input.dispatchEvent(new Event('input', { bubbles: true }));
         }
 
         // Load game state on page load
