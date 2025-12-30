@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ханафуда - Подсчет очков</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .setup-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .setup-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .setup-row label {
+            min-width: 120px;
+            font-weight: 500;
+        }
+
+        .setup-row input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .scores-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .player-score {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .player-score h3 {
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .player-score .points {
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        .deal-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .deal-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .deal-number {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .winner-select {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .winner-select label {
+            font-weight: 500;
+        }
+
+        .winner-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .winner-btn {
+            padding: 10px 20px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .winner-btn:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .winner-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+            font-weight: bold;
+        }
+
+        .winner-btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .koi-koi-input {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .koi-koi-input label {
+            font-weight: 500;
+        }
+
+        .koi-koi-input input {
+            width: 60px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .yaku-section {
+            margin-top: 15px;
+        }
+
+        .yaku-section h4 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .yaku-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 8px;
+        }
+
+        .yaku-btn {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            font-size: 13px;
+            text-align: center;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .yaku-btn:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .yaku-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+            font-weight: bold;
+        }
+
+        .yaku-btn .points {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-top: 4px;
+        }
+
+        .yaku-btn.active .points {
+            opacity: 1;
+        }
+
+        .yaku-btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+            background: #e9ecef;
+            border-color: #ced4da;
+        }
+
+        .yaku-btn.disabled .points {
+            opacity: 0.5;
+        }
+
+        .yaku-btn .extra-cards-input {
+            margin-top: 8px;
+            display: none;
+        }
+
+        .yaku-btn.active .extra-cards-input {
+            display: block;
+        }
+
+        .yaku-btn .extra-cards-input input {
+            width: 60px;
+            padding: 4px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .yaku-btn.active .extra-cards-input input {
+            border-color: white;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .yaku-btn.active .extra-cards-input label {
+            font-size: 11px;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .deal-result {
+            background: #e7f3ff;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .deal-result.show {
+            display: block;
+        }
+
+        .deal-result .points-earned {
+            font-size: 18px;
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        .history-section {
+            margin-top: 20px;
+        }
+
+        .history-section h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .history-item {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-item-content {
+            flex: 1;
+        }
+
+        .history-item-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-edit {
+            background: #ffc107;
+            color: #000;
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .btn-edit:hover {
+            background: #e0a800;
+        }
+
+        .btn-cancel {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            background: #5a6268;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌸 Ханафуда - Подсчет очков 🌸</h1>
+
+        <div id="setupSection" class="setup-section">
+            <div class="setup-row">
+                <label>Игрок 1:</label>
+                <input type="text" id="player1Name" placeholder="Игрок 1" value="Игрок 1">
+            </div>
+            <div class="setup-row">
+                <label>Игрок 2:</label>
+                <input type="text" id="player2Name" placeholder="Игрок 2" value="Игрок 2">
+            </div>
+            <div class="setup-row">
+                <label>Начальные очки:</label>
+                <input type="number" id="initialPoints" value="30" min="0">
+            </div>
+            <div class="setup-row">
+                <label>Количество раундов:</label>
+                <input type="number" id="totalRounds" value="12" min="1">
+            </div>
+            <div class="actions">
+                <button class="btn btn-primary" onclick="startGame()">Начать игру</button>
+            </div>
+        </div>
+
+        <div id="gameSection" class="hidden">
+            <div class="scores-section">
+                <div class="player-score">
+                    <h3 id="player1Display">Игрок 1</h3>
+                    <div class="points" id="player1Score">30</div>
+                </div>
+                <div class="player-score">
+                    <h3 id="player2Display">Игрок 2</h3>
+                    <div class="points" id="player2Score">30</div>
+                </div>
+            </div>
+
+            <div class="deal-section">
+                <div class="deal-info">
+                    <div class="deal-number">Раздача <span id="currentDeal">1</span> из <span id="totalDeals">12</span></div>
+                </div>
+
+                <div class="winner-select">
+                    <label>Победитель:</label>
+                    <div class="winner-buttons" id="winnerButtons">
+                        <button class="winner-btn" data-winner="player1" id="winnerBtn1"></button>
+                        <button class="winner-btn" data-winner="player2" id="winnerBtn2"></button>
+                    </div>
+                </div>
+
+                <div class="koi-koi-input">
+                    <label>Количество "кои-кои":</label>
+                    <input type="number" id="koiKoiCount" value="0" min="0" max="10">
+                </div>
+
+                <div class="yaku-section">
+                    <h4>Комбинации (яку) победителя:</h4>
+                    <div class="yaku-grid" id="yakuGrid"></div>
+                </div>
+
+                <div class="deal-result" id="dealResult">
+                    <div>Очки за раздачу: <span class="points-earned" id="pointsEarned">0</span></div>
+                </div>
+
+                <div class="actions">
+                    <button class="btn btn-success" id="submitDealBtn" onclick="submitDeal()">Подтвердить раздачу</button>
+                    <button class="btn btn-cancel hidden" id="cancelEditBtn" onclick="cancelEdit()">Отмена</button>
+                    <button class="btn btn-danger" onclick="resetGame()">Сбросить игру</button>
+                </div>
+            </div>
+
+            <div class="history-section">
+                <h3>История раздач</h3>
+                <div id="historyList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Yaku combinations with their point values
+        const YAKU = {
+            'goku': { name: 'Гоку (5 светов)', points: 10 },
+            'shiko': { name: 'Сико (4 света)', points: 8 },
+            'ame-shiko': { name: 'Амэ-сико (4 света с дождем)', points: 7 },
+            'sanko': { name: 'Санко (3 света)', points: 5 },
+            'ino-shika-cho': { name: 'Ино-сика-тё', points: 5 },
+            'akatan': { name: 'Ака-тан (красные ленты)', points: 5 },
+            'aotan': { name: 'Ао-тан (синие ленты)', points: 5 },
+            'tan-zaku': { name: 'Тан-дзаку (ленты)', points: 1 },
+            'tane': { name: 'Тане (животные)', points: 1 },
+            'kasu': { name: 'Касу (простые)', points: 1 },
+            'tsukimi': { name: 'Цукими (луна)', points: 5 },
+            'hanami': { name: 'Ханами (сакура)', points: 5 },
+            'tsukimi-hanami': { name: 'Цукими + Ханами', points: 10 }
+        };
+
+        let gameState = {
+            player1Name: 'Игрок 1',
+            player2Name: 'Игрок 2',
+            player1Score: 30,
+            player2Score: 30,
+            initialPoints: 30,
+            totalRounds: 12,
+            currentDeal: 1,
+            history: []
+        };
+
+        let editingDealIndex = null; // Index of deal being edited, null if not editing
+
+        function loadGameState() {
+            const saved = localStorage.getItem('hanafudaGame');
+            if (saved) {
+                gameState = JSON.parse(saved);
+                restoreGame();
+            }
+        }
+
+        function saveGameState() {
+            localStorage.setItem('hanafudaGame', JSON.stringify(gameState));
+        }
+
+        function startGame() {
+            gameState.player1Name = document.getElementById('player1Name').value || 'Игрок 1';
+            gameState.player2Name = document.getElementById('player2Name').value || 'Игрок 2';
+            gameState.initialPoints = parseInt(document.getElementById('initialPoints').value) || 30;
+            gameState.totalRounds = parseInt(document.getElementById('totalRounds').value) || 12;
+            gameState.player1Score = gameState.initialPoints;
+            gameState.player2Score = gameState.initialPoints;
+            gameState.currentDeal = 1;
+            gameState.history = [];
+
+            document.getElementById('setupSection').classList.add('hidden');
+            document.getElementById('gameSection').classList.remove('hidden');
+            
+            updateDisplay();
+            saveGameState();
+        }
+
+        function restoreGame() {
+            document.getElementById('player1Name').value = gameState.player1Name;
+            document.getElementById('player2Name').value = gameState.player2Name;
+            document.getElementById('initialPoints').value = gameState.initialPoints;
+            document.getElementById('totalRounds').value = gameState.totalRounds;
+
+            document.getElementById('setupSection').classList.add('hidden');
+            document.getElementById('gameSection').classList.remove('hidden');
+            
+            updateDisplay();
+            renderHistory();
+        }
+
+        function updateDisplay() {
+            document.getElementById('player1Display').textContent = gameState.player1Name;
+            document.getElementById('player2Display').textContent = gameState.player2Name;
+            document.getElementById('player1Score').textContent = gameState.player1Score;
+            document.getElementById('player2Score').textContent = gameState.player2Score;
+            document.getElementById('currentDeal').textContent = gameState.currentDeal;
+            document.getElementById('totalDeals').textContent = gameState.totalRounds;
+
+            // Update winner buttons
+            const winnerBtn1 = document.getElementById('winnerBtn1');
+            const winnerBtn2 = document.getElementById('winnerBtn2');
+            if (winnerBtn1) winnerBtn1.textContent = gameState.player1Name;
+            if (winnerBtn2) winnerBtn2.textContent = gameState.player2Name;
+
+            renderYakuButtons();
+            clearDealInputs();
+            
+            // Disable inputs if game is over
+            if (gameState.currentDeal > gameState.totalRounds) {
+                disableDealInputs();
+            } else {
+                enableDealInputs();
+            }
+        }
+
+        function getWinnerValue() {
+            const activeBtn = document.querySelector('.winner-btn.active');
+            return activeBtn ? activeBtn.dataset.winner : '';
+        }
+
+        function setWinnerValue(value) {
+            document.querySelectorAll('.winner-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            if (value) {
+                const btn = document.querySelector(`.winner-btn[data-winner="${value}"]`);
+                if (btn) {
+                    btn.classList.add('active');
+                }
+            }
+        }
+
+        function disableDealInputs() {
+            document.querySelectorAll('.winner-btn').forEach(btn => {
+                btn.disabled = true;
+                btn.classList.add('disabled');
+            });
+            document.getElementById('koiKoiCount').disabled = true;
+            document.querySelectorAll('.yaku-btn').forEach(btn => {
+                btn.style.pointerEvents = 'none';
+                btn.style.opacity = '0.6';
+            });
+            document.querySelectorAll('.extra-cards-input input').forEach(input => {
+                if (input) input.disabled = true;
+            });
+            document.querySelector('.btn-success').disabled = true;
+        }
+
+        function enableDealInputs() {
+            document.querySelectorAll('.winner-btn').forEach(btn => {
+                btn.disabled = false;
+                btn.classList.remove('disabled');
+            });
+            document.getElementById('koiKoiCount').disabled = false;
+            document.querySelectorAll('.yaku-btn').forEach(btn => {
+                btn.style.pointerEvents = 'auto';
+                btn.style.opacity = '1';
+            });
+            document.querySelectorAll('.extra-cards-input input').forEach(input => {
+                if (input) input.disabled = false;
+            });
+            document.querySelector('.btn-success').disabled = false;
+        }
+
+        function renderYakuButtons() {
+            const grid = document.getElementById('yakuGrid');
+            grid.innerHTML = '';
+            
+            // Yaku that need extra cards input
+            const yakuWithExtraCards = ['kasu', 'tane', 'tan-zaku'];
+            
+            for (const [key, yaku] of Object.entries(YAKU)) {
+                const btn = document.createElement('div');
+                btn.className = 'yaku-btn';
+                btn.dataset.yaku = key;
+                
+                let extraCardsHtml = '';
+                if (yakuWithExtraCards.includes(key)) {
+                    extraCardsHtml = `
+                        <div class="extra-cards-input">
+                            <label>Доп. карты:</label>
+                            <input type="number" 
+                                   id="extra-cards-${key}" 
+                                   value="0" 
+                                   min="0" 
+                                   max="20"
+                                   onclick="event.stopPropagation();"
+                                   oninput="updateDealResult();">
+                        </div>
+                    `;
+                }
+                
+                btn.innerHTML = `
+                    <div>${yaku.name}</div>
+                    <div class="points">${yaku.points} очков</div>
+                    ${extraCardsHtml}
+                `;
+                btn.onclick = () => {
+                    if (!btn.classList.contains('disabled')) {
+                        toggleYaku(btn);
+                        updateDealResult();
+                    }
+                };
+                grid.appendChild(btn);
+            }
+            
+            // Update button states after rendering
+            updateYakuButtonsState();
+        }
+
+        function toggleYaku(btn) {
+            const yakuKey = btn.dataset.yaku;
+            const isActive = btn.classList.contains('active');
+            
+            // List of mutually exclusive light combinations
+            const exclusiveLights = ['sanko', 'ame-shiko', 'shiko', 'goku'];
+            
+            // If activating a light combination
+            if (!isActive && exclusiveLights.includes(yakuKey)) {
+                // Deactivate all other light combinations
+                exclusiveLights.forEach(key => {
+                    if (key !== yakuKey) {
+                        const otherBtn = document.querySelector(`[data-yaku="${key}"]`);
+                        if (otherBtn && otherBtn.classList.contains('active')) {
+                            otherBtn.classList.remove('active');
+                            // Clear extra cards input if it exists
+                            const extraCardsInput = document.getElementById(`extra-cards-${key}`);
+                            if (extraCardsInput) {
+                                extraCardsInput.value = 0;
+                            }
+                        }
+                    }
+                });
+            }
+            
+            btn.classList.toggle('active');
+            updateYakuButtonsState();
+        }
+
+        function updateYakuButtonsState() {
+            // List of mutually exclusive light combinations
+            const exclusiveLights = ['sanko', 'ame-shiko', 'shiko', 'goku'];
+            
+            // Find which light combination is currently active
+            let activeLight = null;
+            exclusiveLights.forEach(key => {
+                const btn = document.querySelector(`[data-yaku="${key}"]`);
+                if (btn && btn.classList.contains('active')) {
+                    activeLight = key;
+                }
+            });
+            
+            // Update disabled state for all light combinations
+            exclusiveLights.forEach(key => {
+                const btn = document.querySelector(`[data-yaku="${key}"]`);
+                if (btn) {
+                    if (activeLight !== null && activeLight !== key) {
+                        // Disable other light combinations if one is active
+                        btn.classList.add('disabled');
+                    } else {
+                        // Enable if no light combination is active, or this is the active one
+                        btn.classList.remove('disabled');
+                    }
+                }
+            });
+        }
+
+        function clearDealInputs() {
+            setWinnerValue('');
+            document.getElementById('koiKoiCount').value = 0;
+            document.querySelectorAll('.yaku-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.extra-cards-input input').forEach(input => {
+                if (input) input.value = 0;
+            });
+            document.getElementById('dealResult').classList.remove('show');
+            editingDealIndex = null;
+            updateEditMode();
+            updateYakuButtonsState();
+        }
+
+        function updateEditMode() {
+            const submitBtn = document.getElementById('submitDealBtn');
+            const cancelBtn = document.getElementById('cancelEditBtn');
+            
+            if (editingDealIndex !== null) {
+                submitBtn.textContent = 'Сохранить изменения';
+                cancelBtn.classList.remove('hidden');
+            } else {
+                submitBtn.textContent = 'Подтвердить раздачу';
+                cancelBtn.classList.add('hidden');
+            }
+        }
+
+        function calculatePoints() {
+            const winner = getWinnerValue();
+            const koiKoiCount = parseInt(document.getElementById('koiKoiCount').value) || 0;
+            const activeYaku = Array.from(document.querySelectorAll('.yaku-btn.active'))
+                .map(btn => btn.dataset.yaku);
+
+            if (!winner || activeYaku.length === 0) {
+                return { total: 0, base: 0, multiplier: 1, koiKoiCount: 0 };
+            }
+
+            let basePoints = 0;
+            const yakuPoints = [];
+            const yakuWithExtraCards = ['kasu', 'tane', 'tan-zaku'];
+
+            // Calculate base points for each yaku
+            for (const yakuKey of activeYaku) {
+                if (YAKU[yakuKey]) {
+                    let yakuPointsValue = YAKU[yakuKey].points;
+                    
+                    // Add extra cards points for specific yaku
+                    if (yakuWithExtraCards.includes(yakuKey)) {
+                        const extraCardsInput = document.getElementById(`extra-cards-${yakuKey}`);
+                        if (extraCardsInput) {
+                            const extraCards = parseInt(extraCardsInput.value) || 0;
+                            yakuPointsValue += extraCards; // Each extra card adds 1 point
+                        }
+                    }
+                    
+                    yakuPoints.push(yakuPointsValue);
+                    basePoints += yakuPointsValue;
+                }
+            }
+
+            // Apply doubling for koi-koi calls
+            // Each koi-koi call doubles the points (2^n multiplier)
+            const multiplier = Math.pow(2, koiKoiCount);
+            const totalPoints = basePoints * multiplier;
+
+            return { total: totalPoints, base: basePoints, multiplier: multiplier, koiKoiCount: koiKoiCount };
+        }
+
+        function updateDealResult() {
+            const result = calculatePoints();
+            const pointsEarned = document.getElementById('pointsEarned');
+            const dealResult = document.getElementById('dealResult');
+            
+            if (result.total > 0) {
+                let details = `${result.total} очков`;
+                if (result.koiKoiCount > 0) {
+                    details += ` (${result.base} × 2^${result.koiKoiCount} = ${result.base} × ${result.multiplier})`;
+                } else {
+                    details += ` (базовые очки: ${result.base})`;
+                }
+                pointsEarned.textContent = details;
+                dealResult.classList.add('show');
+            } else {
+                dealResult.classList.remove('show');
+            }
+        }
+
+        // Update result when inputs change
+        document.addEventListener('DOMContentLoaded', () => {
+            // Setup winner buttons using event delegation
+            const winnerButtons = document.getElementById('winnerButtons');
+            if (winnerButtons) {
+                winnerButtons.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('winner-btn') && !e.target.disabled) {
+                        setWinnerValue(e.target.dataset.winner);
+                        updateDealResult();
+                    }
+                });
+            }
+            
+            const koiKoiCount = document.getElementById('koiKoiCount');
+            if (koiKoiCount) {
+                koiKoiCount.addEventListener('input', updateDealResult);
+            }
+        });
+
+        function submitDeal() {
+            const winner = getWinnerValue();
+            const koiKoiCount = parseInt(document.getElementById('koiKoiCount').value) || 0;
+            const yakuWithExtraCards = ['kasu', 'tane', 'tan-zaku'];
+            
+            const activeYaku = Array.from(document.querySelectorAll('.yaku-btn.active'))
+                .map(btn => {
+                    const key = btn.dataset.yaku;
+                    const yakuData = { key, name: YAKU[key].name, points: YAKU[key].points };
+                    
+                    // Add extra cards count if applicable
+                    if (yakuWithExtraCards.includes(key)) {
+                        const extraCardsInput = document.getElementById(`extra-cards-${key}`);
+                        if (extraCardsInput) {
+                            yakuData.extraCards = parseInt(extraCardsInput.value) || 0;
+                        }
+                    }
+                    
+                    return yakuData;
+                });
+
+            if (!winner) {
+                alert('Выберите победителя!');
+                return;
+            }
+
+            if (activeYaku.length === 0) {
+                alert('Выберите хотя бы одну комбинацию!');
+                return;
+            }
+
+            const result = calculatePoints();
+            const points = result.total;
+            const winnerName = winner === 'player1' ? gameState.player1Name : gameState.player2Name;
+
+            if (editingDealIndex !== null) {
+                // Editing existing deal
+                const oldDeal = gameState.history[editingDealIndex];
+                const oldPoints = oldDeal.points;
+                const oldWinner = oldDeal.winner;
+                
+                // Revert old points
+                if (oldWinner === gameState.player1Name) {
+                    gameState.player1Score -= oldPoints;
+                    gameState.player2Score += oldPoints;
+                } else {
+                    gameState.player2Score -= oldPoints;
+                    gameState.player1Score += oldPoints;
+                }
+                
+                // Update deal
+                gameState.history[editingDealIndex] = {
+                    deal: oldDeal.deal,
+                    winner: winnerName,
+                    koiKoiCount: koiKoiCount,
+                    yaku: activeYaku,
+                    points: points
+                };
+                
+                // Apply new points
+                if (winner === 'player1') {
+                    gameState.player1Score += points;
+                    gameState.player2Score -= points;
+                } else {
+                    gameState.player2Score += points;
+                    gameState.player1Score -= points;
+                }
+                
+                editingDealIndex = null;
+            } else {
+                // New deal
+                // Update scores - winner gets points, loser loses points
+                if (winner === 'player1') {
+                    gameState.player1Score += points;
+                    gameState.player2Score -= points;
+                } else {
+                    gameState.player2Score += points;
+                    gameState.player1Score -= points;
+                }
+
+                // Add to history
+                const historyItem = {
+                    deal: gameState.currentDeal,
+                    winner: winnerName,
+                    koiKoiCount: koiKoiCount,
+                    yaku: activeYaku,
+                    points: points
+                };
+                gameState.history.push(historyItem);
+
+                // Move to next deal
+                gameState.currentDeal++;
+            }
+
+            updateDisplay();
+            renderHistory();
+            saveGameState();
+
+            // Check if game is over
+            if (gameState.currentDeal > gameState.totalRounds) {
+                const winner = gameState.player1Score > gameState.player2Score 
+                    ? gameState.player1Name 
+                    : gameState.player2Score > gameState.player1Score
+                    ? gameState.player2Name
+                    : 'Ничья';
+                setTimeout(() => {
+                    alert(`Игра окончена!\n\n${gameState.player1Name}: ${gameState.player1Score} очков\n${gameState.player2Name}: ${gameState.player2Score} очков\n\nПобедитель: ${winner}`);
+                    disableDealInputs();
+                }, 100);
+            }
+        }
+
+        function editDeal(index) {
+            const deal = gameState.history[index];
+            editingDealIndex = index;
+            
+            // Set winner
+            if (deal.winner === gameState.player1Name) {
+                setWinnerValue('player1');
+            } else {
+                setWinnerValue('player2');
+            }
+            
+            // Set koi-koi count
+            document.getElementById('koiKoiCount').value = deal.koiKoiCount || 0;
+            
+            // Clear all yaku buttons
+            document.querySelectorAll('.yaku-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.extra-cards-input input').forEach(input => {
+                if (input) input.value = 0;
+            });
+            
+            // Activate yaku from deal
+            deal.yaku.forEach(yaku => {
+                const btn = document.querySelector(`[data-yaku="${yaku.key}"]`);
+                if (btn) {
+                    btn.classList.add('active');
+                    
+                    // Set extra cards if applicable
+                    if (yaku.extraCards && yaku.extraCards > 0) {
+                        const extraCardsInput = document.getElementById(`extra-cards-${yaku.key}`);
+                        if (extraCardsInput) {
+                            extraCardsInput.value = yaku.extraCards;
+                        }
+                    }
+                }
+            });
+            
+            updateYakuButtonsState();
+            updateDealResult();
+            updateEditMode();
+            
+            // Scroll to form
+            document.querySelector('.deal-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function cancelEdit() {
+            clearDealInputs();
+            updateEditMode();
+        }
+
+        function renderHistory() {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '';
+
+            if (gameState.history.length === 0) {
+                historyList.innerHTML = '<div class="history-item">История пуста</div>';
+                return;
+            }
+
+            gameState.history.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'history-item';
+                const yakuNames = item.yaku.map(y => {
+                    let name = y.name;
+                    if (y.extraCards && y.extraCards > 0) {
+                        name += ` (+${y.extraCards} карт)`;
+                    }
+                    return name;
+                }).join(', ');
+                
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'history-item-content';
+                contentDiv.innerHTML = `
+                    <strong>Раздача ${item.deal}:</strong> ${item.winner} - ${item.points} очков
+                    ${item.koiKoiCount > 0 ? `(${item.koiKoiCount} кои-кои)` : ''}
+                    <br><small>Комбинации: ${yakuNames}</small>
+                `;
+                
+                const actionsDiv = document.createElement('div');
+                actionsDiv.className = 'history-item-actions';
+                const editBtn = document.createElement('button');
+                editBtn.className = 'btn btn-edit';
+                editBtn.textContent = 'Редактировать';
+                editBtn.onclick = () => editDeal(index);
+                actionsDiv.appendChild(editBtn);
+                
+                div.appendChild(contentDiv);
+                div.appendChild(actionsDiv);
+                historyList.appendChild(div);
+            });
+        }
+
+        function resetGame() {
+            if (confirm('Вы уверены, что хотите сбросить игру?')) {
+                localStorage.removeItem('hanafudaGame');
+                location.reload();
+            }
+        }
+
+        // Load game state on page load
+        loadGameState();
+    </script>
+</body>
+</html>
