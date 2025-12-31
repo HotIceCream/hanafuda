@@ -689,19 +689,23 @@
 </head>
 <body>
     <div class="container">
-        <h1>🌸 Ханафуда - Подсчет очков 🌸</h1>
+        <div class="language-switcher">
+            <button class="lang-btn active" id="langRu" onclick="setLanguage('ru')">RU</button>
+            <button class="lang-btn" id="langEn" onclick="setLanguage('en')">EN</button>
+        </div>
+        <h1 id="pageTitle">🌸 Ханафуда - Подсчет очков 🌸</h1>
 
         <div id="setupSection" class="setup-section">
             <div class="setup-row">
-                <label>Игрок 1:</label>
+                <label for="player1Name">Игрок 1:</label>
                 <input type="text" id="player1Name" placeholder="Игрок 1" value="Игрок 1">
             </div>
             <div class="setup-row">
-                <label>Игрок 2:</label>
+                <label for="player2Name">Игрок 2:</label>
                 <input type="text" id="player2Name" placeholder="Игрок 2" value="Игрок 2">
             </div>
             <div class="setup-row">
-                <label>Начальные очки:</label>
+                <label for="initialPoints">Начальные очки:</label>
                 <div class="number-input-wrapper">
                     <button class="number-btn" onclick="decrementNumber('initialPoints', 0)">−</button>
                     <input type="number" id="initialPoints" value="30" min="0">
@@ -709,7 +713,7 @@
                 </div>
             </div>
             <div class="setup-row">
-                <label>Количество раундов:</label>
+                <label for="totalRounds">Количество раундов:</label>
                 <div class="number-input-wrapper">
                     <button class="number-btn" onclick="decrementNumber('totalRounds', 1)">−</button>
                     <input type="number" id="totalRounds" value="12" min="1">
@@ -735,7 +739,7 @@
 
             <div class="deal-section">
                 <div class="deal-info">
-                    <div class="deal-number">Раздача <span id="currentDeal">1</span> из <span id="totalDeals">12</span></div>
+                    <div class="deal-number" id="dealNumber"></div>
                 </div>
 
                 <div class="winner-select">
@@ -779,6 +783,196 @@
     </div>
 
     <script>
+        // Localization
+        const translations = {
+            ru: {
+                title: '🌸 Ханафуда - Подсчет очков 🌸',
+                player1: 'Игрок 1',
+                player2: 'Игрок 2',
+                initialPoints: 'Начальные очки',
+                totalRounds: 'Количество раундов',
+                startGame: 'Начать игру',
+                deal: 'Раздача',
+                of: 'из',
+                winner: 'Победитель',
+                koiKoiCount: 'Количество "кои-кои"',
+                yakuTitle: 'Комбинации (яку) победителя:',
+                pointsEarned: 'Очки за раздачу:',
+                submitDeal: 'Подтвердить раздачу',
+                saveChanges: 'Сохранить изменения',
+                cancel: 'Отмена',
+                resetGame: 'Сбросить игру',
+                history: 'История раздач',
+                historyEmpty: 'История пуста',
+                extraCards: 'Доп. карты:',
+                gameOver: 'Игра окончена!',
+                points: 'очков',
+                winnerLabel: 'Победитель:',
+                draw: 'Ничья',
+                confirmReset: 'Вы уверены, что хотите сбросить игру?',
+                selectWinner: 'Выберите победителя!',
+                selectYaku: 'Выберите хотя бы одну комбинацию!',
+                basePoints: 'базовые очки:',
+                edit: 'Редактировать',
+                cards: 'карт',
+                combinations: 'Комбинации:',
+                stopOnNegative: 'Останавливать игру при отрицательных очках',
+                gameStopped: 'Игра остановлена!',
+                negativeScore: 'ушел в минус',
+                yaku: {
+                    'goku': 'Гоку (5 карт)',
+                    'shiko': 'Шико (4 карты)',
+                    'ame-shiko': 'Амэ-шико (3 карты с дождем)',
+                    'sanko': 'Санко (3 карты)',
+                    'ino-shika-cho': 'Ино-шико-чо',
+                    'akatan': 'Ака-тан (красные ленты)',
+                    'aotan': 'Ао-тан (синие ленты)',
+                    'tan-zaku': 'Тан-дзаку (ленты)',
+                    'tane': 'Тане (животные)',
+                    'kasu': 'Касу (простые)',
+                    'tsukimi': 'Цукими (луна)',
+                    'hanami': 'Ханами (сакура)'
+                }
+            },
+            en: {
+                title: '🌸 Hanafuda - Score Tracker 🌸',
+                player1: 'Player 1',
+                player2: 'Player 2',
+                initialPoints: 'Initial Points',
+                totalRounds: 'Number of Rounds',
+                startGame: 'Start Game',
+                deal: 'Deal',
+                of: 'of',
+                winner: 'Winner',
+                koiKoiCount: 'Number of "koi-koi"',
+                yakuTitle: 'Winner\'s Combinations (yaku):',
+                pointsEarned: 'Points earned:',
+                submitDeal: 'Submit Deal',
+                saveChanges: 'Save Changes',
+                cancel: 'Cancel',
+                resetGame: 'Reset Game',
+                history: 'Deal History',
+                historyEmpty: 'History is empty',
+                extraCards: 'Extra cards:',
+                gameOver: 'Game Over!',
+                points: 'points',
+                winnerLabel: 'Winner:',
+                draw: 'Draw',
+                confirmReset: 'Are you sure you want to reset the game?',
+                selectWinner: 'Select a winner!',
+                selectYaku: 'Select at least one combination!',
+                basePoints: 'base points:',
+                edit: 'Edit',
+                cards: 'cards',
+                combinations: 'Combinations:',
+                stopOnNegative: 'Stop game on negative points',
+                gameStopped: 'Game stopped!',
+                negativeScore: 'went negative',
+                yaku: {
+                    'goku': 'Goku (5 cards)',
+                    'shiko': 'Shiko (4 cards)',
+                    'ame-shiko': 'Ame-shiko (3 cards with rain)',
+                    'sanko': 'Sanko (3 cards)',
+                    'ino-shika-cho': 'Ino-shika-cho',
+                    'akatan': 'Aka-tan (red ribbons)',
+                    'aotan': 'Ao-tan (blue ribbons)',
+                    'tan-zaku': 'Tan-zaku (ribbons)',
+                    'tane': 'Tane (animals)',
+                    'kasu': 'Kasu (plain)',
+                    'tsukimi': 'Tsukimi (moon)',
+                    'hanami': 'Hanami (cherry blossom)'
+                }
+            }
+        };
+
+        let currentLanguage = localStorage.getItem('hanafudaLanguage') || 'ru';
+
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            localStorage.setItem('hanafudaLanguage', lang);
+            applyLocalization();
+            
+            // Update language buttons
+            document.getElementById('langRu').classList.toggle('active', lang === 'ru');
+            document.getElementById('langEn').classList.toggle('active', lang === 'en');
+            
+            // Update HTML lang attribute
+            document.documentElement.lang = lang;
+        }
+
+        function t(key) {
+            return translations[currentLanguage][key] || key;
+        }
+
+        function applyLocalization() {
+            const t = translations[currentLanguage];
+            
+            // Page title
+            document.getElementById('pageTitle').textContent = t.title;
+            
+            // Setup section
+            const player1Label = document.querySelector('label[for="player1Name"]');
+            if (player1Label) player1Label.textContent = t.player1 + ':';
+            document.getElementById('player1Name').placeholder = t.player1;
+            
+            const player2Label = document.querySelector('label[for="player2Name"]');
+            if (player2Label) player2Label.textContent = t.player2 + ':';
+            document.getElementById('player2Name').placeholder = t.player2;
+            
+            const initialPointsLabel = document.querySelector('label[for="initialPoints"]');
+            if (initialPointsLabel) initialPointsLabel.textContent = t.initialPoints + ':';
+            
+            const totalRoundsLabel = document.querySelector('label[for="totalRounds"]');
+            if (totalRoundsLabel) totalRoundsLabel.textContent = t.totalRounds + ':';
+            
+            const stopOnNegativeLabel = document.getElementById('stopOnNegativeLabel');
+            if (stopOnNegativeLabel) stopOnNegativeLabel.textContent = t.stopOnNegative;
+            
+            document.querySelector('.btn-primary').textContent = t.startGame;
+            
+            // Game section labels
+            const winnerLabel = document.querySelector('.winner-select label');
+            if (winnerLabel) winnerLabel.textContent = t.winner + ':';
+            
+            const koiKoiLabel = document.querySelector('.koi-koi-input label');
+            if (koiKoiLabel) koiKoiLabel.textContent = t.koiKoiCount + ':';
+            
+            const yakuTitle = document.querySelector('.yaku-section h4');
+            if (yakuTitle) yakuTitle.textContent = t.yakuTitle;
+            
+            // Buttons
+            const submitBtn = document.getElementById('submitDealBtn');
+            if (submitBtn && !submitBtn.textContent.includes('Сохранить') && !submitBtn.textContent.includes('Save')) {
+                submitBtn.textContent = t.submitDeal;
+            }
+            
+            const cancelBtn = document.getElementById('cancelEditBtn');
+            if (cancelBtn) cancelBtn.textContent = t.cancel;
+            
+            const resetBtn = document.querySelector('.btn-danger');
+            if (resetBtn) resetBtn.textContent = t.resetGame;
+            
+            // History
+            const historyTitle = document.querySelector('.history-section h3');
+            if (historyTitle) historyTitle.textContent = t.history;
+            
+            // Update deal result label
+            const dealResult = document.getElementById('dealResult');
+            if (dealResult && dealResult.querySelector('div')) {
+                dealResult.querySelector('div').innerHTML = t.pointsEarned + ' <span class="points-earned" id="pointsEarned">0</span>';
+            }
+            
+            // Re-render yaku buttons with new translations
+            if (document.getElementById('yakuGrid')) {
+                renderYakuButtons();
+            }
+            
+            // Update display
+            if (gameState && gameState.player1Name) {
+                updateDisplay();
+            }
+        }
+
         // Yaku combinations with their point values
         const YAKU = {
             'goku': { name: 'Гоку (5 карт)', points: 10 },
@@ -821,8 +1015,8 @@
         }
 
         function startGame() {
-            gameState.player1Name = document.getElementById('player1Name').value || 'Игрок 1';
-            gameState.player2Name = document.getElementById('player2Name').value || 'Игрок 2';
+            gameState.player1Name = document.getElementById('player1Name').value || t('player1');
+            gameState.player2Name = document.getElementById('player2Name').value || t('player2');
             gameState.initialPoints = parseInt(document.getElementById('initialPoints').value) || 30;
             gameState.totalRounds = parseInt(document.getElementById('totalRounds').value) || 12;
             gameState.player1Score = gameState.initialPoints;
@@ -855,8 +1049,10 @@
             document.getElementById('player2Display').textContent = gameState.player2Name;
             document.getElementById('player1Score').textContent = gameState.player1Score;
             document.getElementById('player2Score').textContent = gameState.player2Score;
-            document.getElementById('currentDeal').textContent = gameState.currentDeal;
-            document.getElementById('totalDeals').textContent = gameState.totalRounds;
+            const dealNumberEl = document.querySelector('.deal-number');
+            if (dealNumberEl) {
+                dealNumberEl.textContent = `${t('deal')} ${gameState.currentDeal} ${t('of')} ${gameState.totalRounds}`;
+            }
 
             // Update winner buttons
             const winnerBtn1 = document.getElementById('winnerBtn1');
@@ -940,7 +1136,7 @@
                 if (yakuWithExtraCards.includes(key)) {
                     extraCardsHtml = `
                         <div class="extra-cards-input">
-                            <label>Доп. карты:</label>
+                            <label>${t('extraCards')}</label>
                             <div class="number-input-wrapper" onclick="event.stopPropagation();">
                                 <button class="number-btn" onclick="event.stopPropagation(); decrementNumber('extra-cards-${key}', 0, 20); updateDealResult();">−</button>
                                 <input type="number" 
@@ -956,9 +1152,10 @@
                     `;
                 }
                 
+                const yakuName = translations[currentLanguage].yaku[key] || yaku.name;
                 btn.innerHTML = `
-                    <div>${yaku.name}</div>
-                    <div class="points">${yaku.points} очков</div>
+                    <div>${yakuName}</div>
+                    <div class="points">${yaku.points} ${t('points')}</div>
                     ${extraCardsHtml}
                 `;
                 btn.onclick = () => {
@@ -1049,10 +1246,10 @@
             const cancelBtn = document.getElementById('cancelEditBtn');
             
             if (editingDealIndex !== null) {
-                submitBtn.textContent = 'Сохранить изменения';
+                submitBtn.textContent = t('saveChanges');
                 cancelBtn.classList.remove('hidden');
             } else {
-                submitBtn.textContent = 'Подтвердить раздачу';
+                submitBtn.textContent = t('submitDeal');
                 cancelBtn.classList.add('hidden');
             }
         }
@@ -1104,11 +1301,11 @@
             const dealResult = document.getElementById('dealResult');
             
             if (result.total > 0) {
-                let details = `${result.total} очков`;
+                let details = `${result.total} ${t('points')}`;
                 if (result.koiKoiCount > 0) {
                     details += ` (${result.base} × 2^${result.koiKoiCount} = ${result.base} × ${result.multiplier})`;
                 } else {
-                    details += ` (базовые очки: ${result.base})`;
+                    details += ` (${t('basePoints')} ${result.base})`;
                 }
                 pointsEarned.textContent = details;
                 dealResult.classList.add('show');
@@ -1144,7 +1341,8 @@
             const activeYaku = Array.from(document.querySelectorAll('.yaku-btn.active'))
                 .map(btn => {
                     const key = btn.dataset.yaku;
-                    const yakuData = { key, name: YAKU[key].name, points: YAKU[key].points };
+                    const yakuName = translations[currentLanguage].yaku[key] || YAKU[key].name;
+                    const yakuData = { key, name: yakuName, points: YAKU[key].points };
                     
                     // Add extra cards count if applicable
                     if (yakuWithExtraCards.includes(key)) {
@@ -1158,12 +1356,12 @@
                 });
 
             if (!winner) {
-                alert('Выберите победителя!');
+                alert(t('selectWinner'));
                 return;
             }
 
             if (activeYaku.length === 0) {
-                alert('Выберите хотя бы одну комбинацию!');
+                alert(t('selectYaku'));
                 return;
             }
 
@@ -1240,9 +1438,9 @@
                     ? gameState.player1Name 
                     : gameState.player2Score > gameState.player1Score
                     ? gameState.player2Name
-                    : 'Ничья';
+                    : t('draw');
                 setTimeout(() => {
-                    alert(`Игра окончена!\n\n${gameState.player1Name}: ${gameState.player1Score} очков\n${gameState.player2Name}: ${gameState.player2Score} очков\n\nПобедитель: ${winner}`);
+                    alert(`${t('gameOver')}\n\n${gameState.player1Name}: ${gameState.player1Score} ${t('points')}\n${gameState.player2Name}: ${gameState.player2Score} ${t('points')}\n\n${t('winnerLabel')} ${winner}`);
                     disableDealInputs();
                 }, 100);
             }
@@ -1302,7 +1500,7 @@
             historyList.innerHTML = '';
 
             if (gameState.history.length === 0) {
-                historyList.innerHTML = '<div class="history-item">История пуста</div>';
+                historyList.innerHTML = `<div class="history-item">${t('historyEmpty')}</div>`;
                 return;
             }
 
@@ -1312,7 +1510,7 @@
                 const yakuNames = item.yaku.map(y => {
                     let name = y.name;
                     if (y.extraCards && y.extraCards > 0) {
-                        name += ` (+${y.extraCards} карт)`;
+                        name += ` (+${y.extraCards} ${t('cards')})`;
                     }
                     return name;
                 }).join(', ');
@@ -1320,16 +1518,16 @@
                 const contentDiv = document.createElement('div');
                 contentDiv.className = 'history-item-content';
                 contentDiv.innerHTML = `
-                    <strong>Раздача ${item.deal}:</strong> ${item.winner} - ${item.points} очков
-                    ${item.koiKoiCount > 0 ? `(${item.koiKoiCount} кои-кои)` : ''}
-                    <br><small>Комбинации: ${yakuNames}</small>
+                    <strong>${t('deal')} ${item.deal}:</strong> ${item.winner} - ${item.points} ${t('points')}
+                    ${item.koiKoiCount > 0 ? `(${item.koiKoiCount} ${t('koiKoiCount').toLowerCase()})` : ''}
+                    <br><small>${t('combinations')} ${yakuNames}</small>
                 `;
                 
                 const actionsDiv = document.createElement('div');
                 actionsDiv.className = 'history-item-actions';
                 const editBtn = document.createElement('button');
                 editBtn.className = 'btn btn-edit';
-                editBtn.textContent = 'Редактировать';
+                editBtn.textContent = t('edit');
                 editBtn.onclick = () => editDeal(index);
                 actionsDiv.appendChild(editBtn);
                 
@@ -1340,7 +1538,7 @@
         }
 
         function resetGame() {
-            if (confirm('Вы уверены, что хотите сбросить игру?')) {
+            if (confirm(t('confirmReset'))) {
                 localStorage.removeItem('hanafudaGame');
                 location.reload();
             }
@@ -1375,8 +1573,11 @@
             input.dispatchEvent(new Event('input', { bubbles: true }));
         }
 
-        // Load game state on page load
-        loadGameState();
+        // Initialize language and load game state on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            setLanguage(currentLanguage);
+            loadGameState();
+        });
     </script>
 </body>
 </html>
