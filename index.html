@@ -720,6 +720,24 @@
                     <button class="number-btn" onclick="incrementNumber('totalRounds')">+</button>
                 </div>
             </div>
+            <div class="setup-row">
+                <label>
+                    <input type="checkbox" id="enableKoiKoi" checked>
+                    <span id="enableKoiKoiLabel">Включить "кои-кои"</span>
+                </label>
+            </div>
+            <div class="setup-row">
+                <label>
+                    <input type="checkbox" id="enableDoubleOver7" checked>
+                    <span id="enableDoubleOver7Label">Удваивать очки за набор 7+ очков</span>
+                </label>
+            </div>
+            <div class="setup-row">
+                <label>
+                    <input type="checkbox" id="stopOnNegative" checked>
+                    <span id="stopOnNegativeLabel">Останавливать игру при отрицательных очках</span>
+                </label>
+            </div>
             <div class="actions">
                 <button class="btn btn-primary" onclick="startGame()">Начать игру</button>
             </div>
@@ -750,7 +768,7 @@
                     </div>
                 </div>
 
-                <div class="koi-koi-input">
+                <div class="koi-koi-input" id="koiKoiInputSection" style="display: none;">
                     <label>Количество "кои-кои":</label>
                     <div class="number-input-wrapper">
                         <button class="number-btn" onclick="decrementNumber('koiKoiCount', 0, 10)">−</button>
@@ -817,6 +835,8 @@
                 cards: 'карт',
                 combinations: 'Комбинации:',
                 stopOnNegative: 'Останавливать игру при отрицательных очках',
+                enableKoiKoi: 'Включить "кои-кои"',
+                enableDoubleOver7: 'Удваивать очки за набор 7+ очков',
                 gameStopped: 'Игра остановлена!',
                 negativeScore: 'ушел в минус',
                 yaku: {
@@ -866,6 +886,8 @@
                 cards: 'cards',
                 combinations: 'Combinations:',
                 stopOnNegative: 'Stop game on negative points',
+                enableKoiKoi: 'Enable "koi-koi"',
+                enableDoubleOver7: 'Double points for 7+ points',
                 gameStopped: 'Game stopped!',
                 negativeScore: 'went negative',
                 yaku: {
@@ -924,6 +946,12 @@
             
             const totalRoundsLabel = document.querySelector('label[for="totalRounds"]');
             if (totalRoundsLabel) totalRoundsLabel.textContent = t.totalRounds + ':';
+            
+            const enableKoiKoiLabel = document.getElementById('enableKoiKoiLabel');
+            if (enableKoiKoiLabel) enableKoiKoiLabel.textContent = t.enableKoiKoi;
+            
+            const enableDoubleOver7Label = document.getElementById('enableDoubleOver7Label');
+            if (enableDoubleOver7Label) enableDoubleOver7Label.textContent = t.enableDoubleOver7;
             
             const stopOnNegativeLabel = document.getElementById('stopOnNegativeLabel');
             if (stopOnNegativeLabel) stopOnNegativeLabel.textContent = t.stopOnNegative;
@@ -997,7 +1025,10 @@
             initialPoints: 30,
             totalRounds: 12,
             currentDeal: 1,
-            history: []
+            history: [],
+            enableKoiKoi: true,
+            enableDoubleOver7: true,
+            stopOnNegative: true
         };
 
         let editingDealIndex = null; // Index of deal being edited, null if not editing
@@ -1019,6 +1050,9 @@
             gameState.player2Name = document.getElementById('player2Name').value || t('player2');
             gameState.initialPoints = parseInt(document.getElementById('initialPoints').value) || 30;
             gameState.totalRounds = parseInt(document.getElementById('totalRounds').value) || 12;
+            gameState.enableKoiKoi = document.getElementById('enableKoiKoi').checked;
+            gameState.enableDoubleOver7 = document.getElementById('enableDoubleOver7').checked;
+            gameState.stopOnNegative = document.getElementById('stopOnNegative').checked;
             gameState.player1Score = gameState.initialPoints;
             gameState.player2Score = gameState.initialPoints;
             gameState.currentDeal = 1;
@@ -1036,6 +1070,18 @@
             document.getElementById('player2Name').value = gameState.player2Name;
             document.getElementById('initialPoints').value = gameState.initialPoints;
             document.getElementById('totalRounds').value = gameState.totalRounds;
+            const enableKoiKoiCheckbox = document.getElementById('enableKoiKoi');
+            if (enableKoiKoiCheckbox) {
+                enableKoiKoiCheckbox.checked = gameState.enableKoiKoi !== false; // Default to true
+            }
+            const enableDoubleOver7Checkbox = document.getElementById('enableDoubleOver7');
+            if (enableDoubleOver7Checkbox) {
+                enableDoubleOver7Checkbox.checked = gameState.enableDoubleOver7 !== false; // Default to true
+            }
+            const stopOnNegativeCheckbox = document.getElementById('stopOnNegative');
+            if (stopOnNegativeCheckbox) {
+                stopOnNegativeCheckbox.checked = gameState.stopOnNegative !== false; // Default to true
+            }
 
             document.getElementById('setupSection').classList.add('hidden');
             document.getElementById('gameSection').classList.remove('hidden');
@@ -1062,6 +1108,12 @@
 
             renderYakuButtons();
             clearDealInputs();
+            
+            // Show/hide koi-koi input based on setting
+            const koiKoiSection = document.getElementById('koiKoiInputSection');
+            if (koiKoiSection) {
+                koiKoiSection.style.display = gameState.enableKoiKoi ? 'flex' : 'none';
+            }
             
             // Disable inputs if game is over
             if (gameState.currentDeal > gameState.totalRounds) {
@@ -1256,12 +1308,14 @@
 
         function calculatePoints() {
             const winner = getWinnerValue();
-            const koiKoiCount = parseInt(document.getElementById('koiKoiCount').value) || 0;
+            const koiKoiCount = gameState.enableKoiKoi 
+                ? (parseInt(document.getElementById('koiKoiCount').value) || 0)
+                : 0;
             const activeYaku = Array.from(document.querySelectorAll('.yaku-btn.active'))
                 .map(btn => btn.dataset.yaku);
 
             if (!winner || activeYaku.length === 0) {
-                return { total: 0, base: 0, multiplier: 1, koiKoiCount: 0 };
+                return { total: 0, base: 0, multiplier: 1, koiKoiCount: 0, doubleOver7: false };
             }
 
             let basePoints = 0;
@@ -1287,12 +1341,23 @@
                 }
             }
 
-            // Apply doubling for koi-koi calls
-            // Each koi-koi call doubles the points (2^n multiplier)
-            const multiplier = Math.pow(2, koiKoiCount);
-            const totalPoints = basePoints * multiplier;
+            // Apply doubling for koi-koi calls (if enabled)
+            let multiplier = 1;
+            if (gameState.enableKoiKoi && koiKoiCount > 0) {
+                // Each koi-koi call doubles the points (2^n multiplier)
+                multiplier = Math.pow(2, koiKoiCount);
+            }
+            
+            let totalPoints = basePoints * multiplier;
+            
+            // Apply doubling for 7+ points (if enabled)
+            let doubleOver7 = false;
+            if (gameState.enableDoubleOver7 && basePoints >= 7) {
+                totalPoints *= 2;
+                doubleOver7 = true;
+            }
 
-            return { total: totalPoints, base: basePoints, multiplier: multiplier, koiKoiCount: koiKoiCount };
+            return { total: totalPoints, base: basePoints, multiplier: multiplier, koiKoiCount: koiKoiCount, doubleOver7: doubleOver7 };
         }
 
         function updateDealResult() {
@@ -1302,11 +1367,28 @@
             
             if (result.total > 0) {
                 let details = `${result.total} ${t('points')}`;
+                let calculation = `${result.base}`;
+                
+                // Add koi-koi multiplier if applicable
                 if (result.koiKoiCount > 0) {
-                    details += ` (${result.base} × 2^${result.koiKoiCount} = ${result.base} × ${result.multiplier})`;
+                    calculation += ` × 2^${result.koiKoiCount} = ${result.base * result.multiplier}`;
+                }
+                
+                // Add double over 7 if applicable
+                if (result.doubleOver7) {
+                    if (result.koiKoiCount > 0) {
+                        calculation = `(${calculation}) × 2`;
+                    } else {
+                        calculation += ` × 2`;
+                    }
+                }
+                
+                if (result.koiKoiCount > 0 || result.doubleOver7) {
+                    details += ` (${calculation})`;
                 } else {
                     details += ` (${t('basePoints')} ${result.base})`;
                 }
+                
                 pointsEarned.textContent = details;
                 dealResult.classList.add('show');
             } else {
@@ -1329,13 +1411,19 @@
             
             const koiKoiCount = document.getElementById('koiKoiCount');
             if (koiKoiCount) {
-                koiKoiCount.addEventListener('input', updateDealResult);
+                koiKoiCount.addEventListener('input', () => {
+                    if (gameState.enableKoiKoi) {
+                        updateDealResult();
+                    }
+                });
             }
         });
 
         function submitDeal() {
             const winner = getWinnerValue();
-            const koiKoiCount = parseInt(document.getElementById('koiKoiCount').value) || 0;
+            const koiKoiCount = gameState.enableKoiKoi 
+                ? (parseInt(document.getElementById('koiKoiCount').value) || 0)
+                : 0;
             const yakuWithExtraCards = ['kasu', 'tane', 'tan-zaku'];
             
             const activeYaku = Array.from(document.querySelectorAll('.yaku-btn.active'))
@@ -1403,6 +1491,30 @@
                 }
                 
                 editingDealIndex = null;
+                
+                // Check if any player went negative (if stopOnNegative is enabled)
+                if (gameState.stopOnNegative) {
+                    if (gameState.player1Score < 0) {
+                        setTimeout(() => {
+                            alert(`${t('gameStopped')}\n\n${gameState.player1Name} ${t('negativeScore')}: ${gameState.player1Score} ${t('points')}\n${gameState.player2Name}: ${gameState.player2Score} ${t('points')}\n\n${t('winnerLabel')} ${gameState.player2Name}`);
+                            disableDealInputs();
+                        }, 100);
+                        updateDisplay();
+                        renderHistory();
+                        saveGameState();
+                        return;
+                    }
+                    if (gameState.player2Score < 0) {
+                        setTimeout(() => {
+                            alert(`${t('gameStopped')}\n\n${gameState.player2Name} ${t('negativeScore')}: ${gameState.player2Score} ${t('points')}\n${gameState.player1Name}: ${gameState.player1Score} ${t('points')}\n\n${t('winnerLabel')} ${gameState.player1Name}`);
+                            disableDealInputs();
+                        }, 100);
+                        updateDisplay();
+                        renderHistory();
+                        saveGameState();
+                        return;
+                    }
+                }
             } else {
                 // New deal
                 // Update scores - winner gets points, loser loses points
@@ -1431,6 +1543,24 @@
             updateDisplay();
             renderHistory();
             saveGameState();
+
+            // Check if any player went negative (if stopOnNegative is enabled)
+            if (gameState.stopOnNegative) {
+                if (gameState.player1Score < 0) {
+                    setTimeout(() => {
+                        alert(`${t('gameStopped')}\n\n${gameState.player1Name} ${t('negativeScore')}: ${gameState.player1Score} ${t('points')}\n${gameState.player2Name}: ${gameState.player2Score} ${t('points')}\n\n${t('winnerLabel')} ${gameState.player2Name}`);
+                        disableDealInputs();
+                    }, 100);
+                    return;
+                }
+                if (gameState.player2Score < 0) {
+                    setTimeout(() => {
+                        alert(`${t('gameStopped')}\n\n${gameState.player2Name} ${t('negativeScore')}: ${gameState.player2Score} ${t('points')}\n${gameState.player1Name}: ${gameState.player1Score} ${t('points')}\n\n${t('winnerLabel')} ${gameState.player1Name}`);
+                        disableDealInputs();
+                    }, 100);
+                    return;
+                }
+            }
 
             // Check if game is over
             if (gameState.currentDeal > gameState.totalRounds) {
