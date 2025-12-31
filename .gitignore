@@ -51,3 +51,10 @@ build/
 *.backup
 *~
 
+# Test results
+test-results/
+playwright-report/
+playwright/.cache/
+node_modules/
+package-lock.json
+
