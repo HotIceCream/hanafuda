@@ -145,6 +145,12 @@
             color: #333;
         }
 
+        .dealer-info {
+            font-size: 14px;
+            color: #666;
+            font-style: italic;
+        }
+
         .winner-select {
             display: flex;
             gap: 10px;
@@ -504,6 +510,10 @@
                 font-size: 16px;
             }
 
+            .dealer-info {
+                font-size: 13px;
+            }
+
             .winner-select {
                 flex-direction: column;
                 align-items: stretch;
@@ -663,6 +673,10 @@
 
             .deal-number {
                 font-size: 14px;
+            }
+
+            .dealer-info {
+                font-size: 12px;
             }
         }
 
@@ -829,6 +843,7 @@
                 points: 'очков',
                 winnerLabel: 'Победитель:',
                 draw: 'Ничья',
+                dealer: 'Сдающий',
                 confirmReset: 'Вы уверены, что хотите сбросить игру?',
                 selectWinner: 'Выберите победителя!',
                 selectYaku: 'Выберите хотя бы одну комбинацию!',
@@ -880,6 +895,7 @@
                 points: 'points',
                 winnerLabel: 'Winner:',
                 draw: 'Draw',
+                dealer: 'Dealer',
                 confirmReset: 'Are you sure you want to reset the game?',
                 selectWinner: 'Select a winner!',
                 selectYaku: 'Select at least one combination!',
@@ -1027,6 +1043,7 @@
             initialPoints: 30,
             totalRounds: 12,
             currentDeal: 1,
+            currentDealer: 'player1', // 'player1' or 'player2'
             history: [],
             enableKoiKoi: true,
             enableDoubleOver7: true,
@@ -1058,6 +1075,7 @@
             gameState.player1Score = gameState.initialPoints;
             gameState.player2Score = gameState.initialPoints;
             gameState.currentDeal = 1;
+            gameState.currentDealer = 'player1'; // First deal: player1 is dealer
             gameState.history = [];
 
             document.getElementById('setupSection').classList.add('hidden');
@@ -1072,6 +1090,12 @@
             document.getElementById('player2Name').value = gameState.player2Name;
             document.getElementById('initialPoints').value = gameState.initialPoints;
             document.getElementById('totalRounds').value = gameState.totalRounds;
+            
+            // Restore or calculate current dealer
+            if (!gameState.currentDealer) {
+                // Calculate dealer based on current deal (odd deals: player1, even deals: player2)
+                gameState.currentDealer = gameState.currentDeal % 2 === 1 ? 'player1' : 'player2';
+            }
             const enableKoiKoiCheckbox = document.getElementById('enableKoiKoi');
             if (enableKoiKoiCheckbox) {
                 enableKoiKoiCheckbox.checked = gameState.enableKoiKoi !== false; // Default to true
@@ -1100,6 +1124,15 @@
             const dealNumberEl = document.querySelector('.deal-number');
             if (dealNumberEl) {
                 dealNumberEl.textContent = `${t('deal')} ${gameState.currentDeal} ${t('of')} ${gameState.totalRounds}`;
+            }
+            
+            // Update dealer info
+            const dealerInfoEl = document.getElementById('dealerInfo');
+            if (dealerInfoEl) {
+                const dealerName = gameState.currentDealer === 'player1' 
+                    ? gameState.player1Name 
+                    : gameState.player2Name;
+                dealerInfoEl.textContent = `${t('dealer')}: ${dealerName}`;
             }
 
             // Update winner buttons
@@ -1464,8 +1497,12 @@
 
             // Handle draw - no points change, no yaku required
             if (winner === 'draw') {
+                const dealerName = gameState.currentDealer === 'player1' 
+                    ? gameState.player1Name 
+                    : gameState.player2Name;
                 const historyItem = {
                     deal: gameState.currentDeal,
+                    dealer: dealerName,
                     winner: t('draw'),
                     koiKoiCount: 0,
                     yaku: [],
@@ -1473,6 +1510,8 @@
                 };
                 gameState.history.push(historyItem);
                 gameState.currentDeal++;
+                // Switch dealer for next deal
+                gameState.currentDealer = gameState.currentDealer === 'player1' ? 'player2' : 'player1';
                 
                 updateDisplay();
                 renderHistory();
@@ -1517,9 +1556,10 @@
                     gameState.player1Score += oldPoints;
                 }
                 
-                // Update deal
+                // Update deal (preserve dealer from old deal)
                 gameState.history[editingDealIndex] = {
                     deal: oldDeal.deal,
+                    dealer: oldDeal.dealer || (oldDeal.deal % 2 === 1 ? gameState.player1Name : gameState.player2Name), // Preserve or calculate dealer
                     winner: winnerName,
                     koiKoiCount: koiKoiCount,
                     yaku: activeYaku,
@@ -1572,8 +1612,12 @@
                 }
 
                 // Add to history
+                const dealerName = gameState.currentDealer === 'player1' 
+                    ? gameState.player1Name 
+                    : gameState.player2Name;
                 const historyItem = {
                     deal: gameState.currentDeal,
+                    dealer: dealerName,
                     winner: winnerName,
                     koiKoiCount: koiKoiCount,
                     yaku: activeYaku,
@@ -1583,6 +1627,8 @@
 
                 // Move to next deal
                 gameState.currentDeal++;
+                // Switch dealer for next deal
+                gameState.currentDealer = gameState.currentDealer === 'player1' ? 'player2' : 'player1';
             }
 
             updateDisplay();
@@ -1692,10 +1738,11 @@
                     return name;
                 }).join(', ');
                 
+                const dealerName = item.dealer || (item.deal % 2 === 1 ? gameState.player1Name : gameState.player2Name);
                 const contentDiv = document.createElement('div');
                 contentDiv.className = 'history-item-content';
                 contentDiv.innerHTML = `
-                    <strong>${t('deal')} ${item.deal}:</strong> ${item.winner} - ${item.points} ${t('points')}
+                    <strong>${t('deal')} ${item.deal}:</strong> ${t('dealer')} ${dealerName} | ${item.winner} - ${item.points} ${t('points')}
                     ${item.koiKoiCount > 0 ? `(${item.koiKoiCount} ${t('koiKoiCount').toLowerCase()})` : ''}
                     <br><small>${t('combinations')} ${yakuNames}</small>
                 `;
