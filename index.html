@@ -758,6 +758,7 @@
             <div class="deal-section">
                 <div class="deal-info">
                     <div class="deal-number" id="dealNumber"></div>
+                    <div class="dealer-info" id="dealerInfo"></div>
                 </div>
 
                 <div class="winner-select">
@@ -765,6 +766,7 @@
                     <div class="winner-buttons" id="winnerButtons">
                         <button class="winner-btn" data-winner="player1" id="winnerBtn1"></button>
                         <button class="winner-btn" data-winner="player2" id="winnerBtn2"></button>
+                        <button class="winner-btn" data-winner="draw" id="winnerBtnDraw">Ничья</button>
                     </div>
                 </div>
 
@@ -1103,8 +1105,10 @@
             // Update winner buttons
             const winnerBtn1 = document.getElementById('winnerBtn1');
             const winnerBtn2 = document.getElementById('winnerBtn2');
+            const winnerBtnDraw = document.getElementById('winnerBtnDraw');
             if (winnerBtn1) winnerBtn1.textContent = gameState.player1Name;
             if (winnerBtn2) winnerBtn2.textContent = gameState.player2Name;
+            if (winnerBtnDraw) winnerBtnDraw.textContent = t('draw');
 
             renderYakuButtons();
             clearDealInputs();
@@ -1308,6 +1312,12 @@
 
         function calculatePoints() {
             const winner = getWinnerValue();
+            
+            // If draw, return zero points
+            if (winner === 'draw') {
+                return { total: 0, base: 0, multiplier: 1, koiKoiCount: 0, doubleOver7: false };
+            }
+            
             const koiKoiCount = gameState.enableKoiKoi 
                 ? (parseInt(document.getElementById('koiKoiCount').value) || 0)
                 : 0;
@@ -1361,11 +1371,15 @@
         }
 
         function updateDealResult() {
+            const winner = getWinnerValue();
             const result = calculatePoints();
             const pointsEarned = document.getElementById('pointsEarned');
             const dealResult = document.getElementById('dealResult');
             
-            if (result.total > 0) {
+            if (winner === 'draw') {
+                pointsEarned.textContent = t('draw');
+                dealResult.classList.add('show');
+            } else if (result.total > 0) {
                 let details = `${result.total} ${t('points')}`;
                 let calculation = `${result.base}`;
                 
@@ -1445,6 +1459,37 @@
 
             if (!winner) {
                 alert(t('selectWinner'));
+                return;
+            }
+
+            // Handle draw - no points change, no yaku required
+            if (winner === 'draw') {
+                const historyItem = {
+                    deal: gameState.currentDeal,
+                    winner: t('draw'),
+                    koiKoiCount: 0,
+                    yaku: [],
+                    points: 0
+                };
+                gameState.history.push(historyItem);
+                gameState.currentDeal++;
+                
+                updateDisplay();
+                renderHistory();
+                saveGameState();
+                
+                // Check if game is over
+                if (gameState.currentDeal > gameState.totalRounds) {
+                    const finalWinner = gameState.player1Score > gameState.player2Score 
+                        ? gameState.player1Name 
+                        : gameState.player2Score > gameState.player1Score
+                        ? gameState.player2Name
+                        : t('draw');
+                    setTimeout(() => {
+                        alert(`${t('gameOver')}\n\n${gameState.player1Name}: ${gameState.player1Score} ${t('points')}\n${gameState.player2Name}: ${gameState.player2Score} ${t('points')}\n\n${t('winnerLabel')} ${finalWinner}`);
+                        disableDealInputs();
+                    }, 100);
+                }
                 return;
             }
 
@@ -1583,8 +1628,10 @@
             // Set winner
             if (deal.winner === gameState.player1Name) {
                 setWinnerValue('player1');
-            } else {
+            } else if (deal.winner === gameState.player2Name) {
                 setWinnerValue('player2');
+            } else if (deal.winner === t('draw') || deal.winner === 'Draw' || deal.winner === 'Ничья') {
+                setWinnerValue('draw');
             }
             
             // Set koi-koi count
